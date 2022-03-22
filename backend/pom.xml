@@ -12,7 +12,7 @@
 	<artifactId>grade-curricular</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>grade-curricular</name>
-	<description>Micro-serviço responsável pela manutenção de cursos e materias</description>
+	<description>Micro-serviço responsável pela manutenção de cursos e matérias</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
