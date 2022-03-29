@@ -1,5 +1,6 @@
 package com.github.youssfbr.gradecurricular.service;
 
+import com.github.youssfbr.gradecurricular.controller.MateriaController;
 import com.github.youssfbr.gradecurricular.dto.MateriaDto;
 import com.github.youssfbr.gradecurricular.entity.MateriaEntity;
 import com.github.youssfbr.gradecurricular.exception.MateriaException;
@@ -10,6 +11,7 @@ import org.modelmapper.TypeToken;
 
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +37,16 @@ public class MateriaService implements IMateriaService {
     @CachePut( unless = "#result.size() < 3" )
     public List<MateriaDto> listarMateriais() {
         try {
-            return mapper.map(materiaRepository.findAll(),new TypeToken<List<MateriaDto>>() {}.getType());
+            List<MateriaDto> materiaDto = mapper.map(materiaRepository.findAll(), new TypeToken<List<MateriaDto>>() {
+            }.getType());
+
+            materiaDto.forEach(materia -> {
+                materia.add(WebMvcLinkBuilder
+                        .linkTo(WebMvcLinkBuilder.methodOn(MateriaController.class).consultarMateria(materia.getId()))
+                        .withSelfRel());
+            });
+
+            return materiaDto;
         }
         catch (Exception e) {
             throw new MateriaException(MENSAGEM_ERRO, HttpStatus.INTERNAL_SERVER_ERROR);

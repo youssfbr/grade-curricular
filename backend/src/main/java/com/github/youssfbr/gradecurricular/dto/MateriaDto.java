@@ -1,7 +1,9 @@
 package com.github.youssfbr.gradecurricular.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -10,7 +12,8 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
-public class MateriaDto {
+@EqualsAndHashCode(callSuper = false)
+public class MateriaDto extends RepresentationModel<MateriaDto> {
 
     private Long id;
 
