@@ -27,6 +27,7 @@ public class MateriaEntity implements Serializable {
     @Column(name = "hrs")
     private Integer horas;
 
+    @JsonInclude(Include.NON_EMPTY)
     @Column(name = "cod")
     private String codigo;
 

@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IMaterialRepository extends JpaRepository<MateriaEntity, Long> {
+public interface IMateriaRepository extends JpaRepository<MateriaEntity, Long> {
 }

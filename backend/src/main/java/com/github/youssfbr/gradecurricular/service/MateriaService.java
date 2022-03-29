@@ -1,72 +1,83 @@
 package com.github.youssfbr.gradecurricular.service;
 
+import com.github.youssfbr.gradecurricular.dto.MateriaDto;
 import com.github.youssfbr.gradecurricular.entity.MateriaEntity;
 import com.github.youssfbr.gradecurricular.exception.MateriaException;
-import com.github.youssfbr.gradecurricular.repository.IMaterialRepository;
+import com.github.youssfbr.gradecurricular.repository.IMateriaRepository;
 
-import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
-@RequiredArgsConstructor
 public class MateriaService implements IMateriaService {
 
-    private final IMaterialRepository materialRepository;
+    private static final String MENSAGEM_ERRO = "Erro interno identificado. Contate o suporte";
+    private static final String MATERIA_NAO_ENCONTRADA = "Matéria não encontrada";
+    private IMateriaRepository materiaRepository;
+    private ModelMapper mapper;
+
+    public MateriaService(IMateriaRepository materiaRepository) {
+        this.materiaRepository = materiaRepository;
+        this.mapper = new ModelMapper();
+    }
+
 
     @Override
-    public List<MateriaEntity> listarMateriais() {
-        return materialRepository.findAll();
+    public List<MateriaDto> listarMateriais() {
+        try {
+            return mapper.map(materiaRepository.findAll(),new TypeToken<List<MateriaDto>>() {}.getType());
+        }
+        catch (Exception e) {
+            throw new MateriaException(MENSAGEM_ERRO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
-    public MateriaEntity consultarMateria(Long id) {
+    public MateriaDto consultarMateria(Long id) {
         try {
-            return materialRepository
+            return materiaRepository
                     .findById(id)
-                    .orElseThrow(() ->  new MateriaException("Matéria não encontrada", HttpStatus.NOT_FOUND));
+                    .map(materia -> mapper.map(materia, MateriaDto.class))
+                    .orElseThrow(() ->  new MateriaException(MATERIA_NAO_ENCONTRADA, HttpStatus.NOT_FOUND));
         }
         catch (MateriaException m) {
             throw m;
         }
         catch (Exception e) {
-            throw new MateriaException("Erro interno identificado. Contate o suporte.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new MateriaException(MENSAGEM_ERRO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
-    public Boolean cadastrarMateria(MateriaEntity materia) {
+    public Boolean cadastrarMateria(MateriaDto materiaDto) {
         try {
-            materialRepository.save(materia);
-            return true;
+            MateriaEntity materiaEntity = this.mapper.map(materiaDto, MateriaEntity.class);
+
+            materiaRepository.save(materiaEntity);
+
+            return Boolean.TRUE;
         }
         catch (Exception e) {
-            return false;
+            throw new MateriaException(MENSAGEM_ERRO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
-    public Boolean atualizarMateria(MateriaEntity materia) {
+    public Boolean atualizarMateria(MateriaDto materiaDto) {
         try {
-            this.consultarMateria(materia.getId());
-            final Optional<MateriaEntity> materiaOptional = materialRepository.findById(materia.getId());
+            consultarMateria(materiaDto.getId());
 
-            if (materiaOptional.isPresent()) {
-                MateriaEntity materiaEntityAtualizada = materiaOptional.get();
+            MateriaEntity materiaEntityAtualizada = mapper.map(materiaDto, MateriaEntity.class);
 
-                materiaEntityAtualizada.setNome(materia.getNome());
-                materiaEntityAtualizada.setCodigo(materia.getCodigo());
-                materiaEntityAtualizada.setHoras(materia.getHoras());
-                materiaEntityAtualizada.setFrequencia(materia.getFrequencia());
+            materiaRepository.save(materiaEntityAtualizada);
 
-                materialRepository.save(materiaEntityAtualizada);
-            }
-            return true;
+            return Boolean.TRUE;
         }
         catch (MateriaException m) {
             throw m;
@@ -80,8 +91,8 @@ public class MateriaService implements IMateriaService {
     public Boolean excluirMateria(Long id) {
         try {
             this.consultarMateria(id);
-            materialRepository.deleteById(id);
-            return true;
+            materiaRepository.deleteById(id);
+            return Boolean.TRUE;
         }
         catch (MateriaException m) {
             throw m;

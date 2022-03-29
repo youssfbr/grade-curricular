@@ -1,14 +1,14 @@
 package com.github.youssfbr.gradecurricular.service;
 
-import com.github.youssfbr.gradecurricular.entity.MateriaEntity;
+import com.github.youssfbr.gradecurricular.dto.MateriaDto;
 
 import java.util.List;
 
 public interface IMateriaService {
 
-    List<MateriaEntity> listarMateriais();
-    MateriaEntity consultarMateria(Long id);
-    Boolean cadastrarMateria(MateriaEntity materia);
-    Boolean atualizarMateria(MateriaEntity materia);
+    List<MateriaDto> listarMateriais();
+    MateriaDto consultarMateria(Long id);
+    Boolean cadastrarMateria(MateriaDto materiaDto);
+    Boolean atualizarMateria(MateriaDto materiaDto);
     Boolean excluirMateria(Long id);
 }
