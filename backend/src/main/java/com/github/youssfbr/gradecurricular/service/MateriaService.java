@@ -8,6 +8,8 @@ import com.github.youssfbr.gradecurricular.repository.IMateriaRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.List;
 
 
 @Service
+@CacheConfig( cacheNames = "materia" )
 public class MateriaService implements IMateriaService {
 
     private static final String MENSAGEM_ERRO = "Erro interno identificado. Contate o suporte";
@@ -29,6 +32,7 @@ public class MateriaService implements IMateriaService {
 
 
     @Override
+    @CachePut( unless = "#result.size() < 3" )
     public List<MateriaDto> listarMateriais() {
         try {
             return mapper.map(materiaRepository.findAll(),new TypeToken<List<MateriaDto>>() {}.getType());
@@ -39,6 +43,26 @@ public class MateriaService implements IMateriaService {
     }
 
     @Override
+    public Boolean atualizarMateria(MateriaDto materiaDto) {
+        try {
+            consultarMateria(materiaDto.getId());
+
+            MateriaEntity materiaEntityAtualizada = mapper.map(materiaDto, MateriaEntity.class);
+
+            materiaRepository.save(materiaEntityAtualizada);
+
+            return Boolean.TRUE;
+        }
+        catch (MateriaException m) {
+            throw m;
+        }
+        catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    @CachePut( key = "#id" )
     public MateriaDto consultarMateria(Long id) {
         try {
             return materiaRepository
@@ -69,26 +93,7 @@ public class MateriaService implements IMateriaService {
     }
 
     @Override
-    public Boolean atualizarMateria(MateriaDto materiaDto) {
-        try {
-            consultarMateria(materiaDto.getId());
-
-            MateriaEntity materiaEntityAtualizada = mapper.map(materiaDto, MateriaEntity.class);
-
-            materiaRepository.save(materiaEntityAtualizada);
-
-            return Boolean.TRUE;
-        }
-        catch (MateriaException m) {
-            throw m;
-        }
-        catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @Override
-    public Boolean excluirMateria(Long id) {
+    public Boolean excluirMateria( Long id ) {
         try {
             this.consultarMateria(id);
             materiaRepository.deleteById(id);
