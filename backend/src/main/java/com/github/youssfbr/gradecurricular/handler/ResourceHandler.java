@@ -1,5 +1,7 @@
 package com.github.youssfbr.gradecurricular.handler;
 
+import com.github.youssfbr.gradecurricular.exception.CursoException;
+import com.github.youssfbr.gradecurricular.exception.ErroInternoException;
 import com.github.youssfbr.gradecurricular.exception.MateriaException;
 
 import com.github.youssfbr.gradecurricular.model.Response;
@@ -43,6 +45,28 @@ public class ResourceHandler {
         response.setData(m.getMessage());
 
         return ResponseEntity.status(m.getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(CursoException.class)
+    public ResponseEntity<Response<String>> handlerCursoException(CursoException c) {
+
+        Response<String> response = new Response<>();
+        response.setStatusCode(c.getHttpStatus().value());
+        response.setData(c.getMessage());
+
+        return ResponseEntity.status(c.getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(ErroInternoException.class)
+    public ResponseEntity<Response<String>> handlerErroInternoException(ErroInternoException e) {
+
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        Response<String> response = new Response<>();
+        response.setStatusCode(status.value());
+        response.setData(e.getMessage());
+
+        return ResponseEntity.status(status.value()).body(response);
     }
 
 }
