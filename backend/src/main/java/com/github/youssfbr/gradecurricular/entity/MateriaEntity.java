@@ -22,13 +22,14 @@ public class MateriaEntity implements Serializable {
     private Long id;
 
     @JsonInclude(Include.NON_EMPTY)
+    @Column(length =  50, nullable = false)
     private String nome;
 
     @Column(name = "hrs")
     private Integer horas;
 
     @JsonInclude(Include.NON_EMPTY)
-    @Column(name = "cod")
+    @Column(name = "cod", length =  6, nullable = false)
     private String codigo;
 
     @Column(name = "freq")

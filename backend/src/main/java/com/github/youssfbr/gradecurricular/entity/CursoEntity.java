@@ -7,8 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -23,13 +24,16 @@ public class CursoEntity implements Serializable {
     private Long id;
 
     @JsonInclude(Include.NON_EMPTY)
+    @Column(length =  30, nullable = false)
     private String nome;
 
     @JsonInclude(Include.NON_EMPTY)
-    @Column(name = "cod")
+    @Column(name = "cod", length =  30, nullable = false)
     private String codigo;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "materia_id")
-    private List<MateriaEntity> materias;
+    @ManyToMany
+    @JoinTable(name = "tb_curso_materias",
+            joinColumns = @JoinColumn(name = "curso_id"),
+            inverseJoinColumns = @JoinColumn(name = "materia_id"))
+    private Set<MateriaEntity> materias;
 }

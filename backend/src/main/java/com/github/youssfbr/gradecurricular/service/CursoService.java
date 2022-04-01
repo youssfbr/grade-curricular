@@ -8,8 +8,9 @@ import com.github.youssfbr.gradecurricular.exception.CursoException;
 import com.github.youssfbr.gradecurricular.exception.ErroInternoException;
 import com.github.youssfbr.gradecurricular.model.CursoModel;
 import com.github.youssfbr.gradecurricular.repository.ICursoRepository;
-
 import com.github.youssfbr.gradecurricular.repository.IMateriaRepository;
+
+import lombok.RequiredArgsConstructor;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -18,30 +19,28 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
 @CacheConfig( cacheNames = "curso" )
+@RequiredArgsConstructor
 public class CursoService implements ICursoService {
 
     private final ICursoRepository cursoRepository;
     private final IMateriaRepository materiaRepository;
-    private ModelMapper mapper;
-
-    public CursoService(ICursoRepository cursoRepository, IMateriaRepository materiaRepository) {
-        this.cursoRepository = cursoRepository;
-        this.materiaRepository = materiaRepository;
-        this.mapper = new ModelMapper();
-    }
+    private final ModelMapper modelMapper;
 
     @Override
+    @Transactional(readOnly = true)
     @CachePut(unless = "#result.size() < 3")
     public List<CursoDto> listarCursos() {
         try {
-            return mapper.map(cursoRepository.findAll(), new TypeToken<List<CursoDto>>() {
+            return modelMapper.map(cursoRepository.findAll(), new TypeToken<List<CursoDto>>() {
             }.getType());
         }
         catch (Exception e) {
@@ -50,12 +49,13 @@ public class CursoService implements ICursoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @CachePut( key = "#id" )
     public CursoDto consultarCurso(Long id) {
         try {
             return cursoRepository
                     .findById(id)
-                    .map(curso -> mapper.map(curso, CursoDto.class))
+                    .map(curso -> modelMapper.map(curso, CursoDto.class))
                     .orElseThrow(() ->  new CursoException(MensagensConstant.ERRO_CURSO_NAO_ENCONTRADO.getValor(), HttpStatus.NOT_FOUND));
         }
         catch (CursoException c) {
@@ -67,6 +67,7 @@ public class CursoService implements ICursoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @CachePut(key = "#codCurso")
     public CursoDto consultarCursoPorCodigo(String codCurso) {
         try {
@@ -77,7 +78,7 @@ public class CursoService implements ICursoService {
                 throw new CursoException(MensagensConstant.ERRO_CURSO_NAO_ENCONTRADO.getValor(), HttpStatus.NOT_FOUND);
             }
 
-            return mapper.map(curso, new TypeToken<CursoDto>() {
+            return modelMapper.map(curso, new TypeToken<CursoDto>() {
             }.getType());
         }
         catch (CursoException c) {
@@ -89,6 +90,7 @@ public class CursoService implements ICursoService {
     }
 
     @Override
+    @Transactional
     public Boolean cadastrarCurso(CursoModel cursoModel) {
         try {
 
@@ -111,6 +113,7 @@ public class CursoService implements ICursoService {
     }
 
     @Override
+    @Transactional
     public Boolean atualizarCurso(CursoModel cursoModel) {
         try {
 
@@ -143,7 +146,7 @@ public class CursoService implements ICursoService {
 
     private Boolean cadastrarOuAtualizar(CursoModel cursoModel) {
 
-        List<MateriaEntity> listMateriaEntity = new ArrayList<>();
+        Set<MateriaEntity> listMateriaEntity = new HashSet<>();
 
         if (!cursoModel.getMaterias().isEmpty()) {
 

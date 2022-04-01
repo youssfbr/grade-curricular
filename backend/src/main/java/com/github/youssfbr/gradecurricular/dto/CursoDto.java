@@ -26,7 +26,5 @@ public class CursoDto extends RepresentationModel<CursoDto> {
     @NotBlank(message = "Informe o código do curso.")
     private String codigo;
 
-    //@OneToMany(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "materia_id")
     private List<MateriaEntity> materias;
 }

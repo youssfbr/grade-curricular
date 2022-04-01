@@ -4,7 +4,6 @@ import com.github.youssfbr.gradecurricular.constante.MensagensConstant;
 import com.github.youssfbr.gradecurricular.controller.MateriaController;
 import com.github.youssfbr.gradecurricular.dto.MateriaDto;
 import com.github.youssfbr.gradecurricular.entity.MateriaEntity;
-import com.github.youssfbr.gradecurricular.exception.CursoException;
 import com.github.youssfbr.gradecurricular.exception.ErroInternoException;
 import com.github.youssfbr.gradecurricular.exception.MateriaException;
 import com.github.youssfbr.gradecurricular.repository.IMateriaRepository;
