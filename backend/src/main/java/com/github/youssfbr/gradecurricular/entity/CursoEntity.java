@@ -32,7 +32,7 @@ public class CursoEntity implements Serializable {
     private String codigo;
 
     @ManyToMany
-    @JoinTable(name = "tb_curso_materias",
+    @JoinTable(name = "tb_curso_materia",
             joinColumns = @JoinColumn(name = "curso_id"),
             inverseJoinColumns = @JoinColumn(name = "materia_id"))
     private Set<MateriaEntity> materias;
